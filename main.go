@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-mcs/helper"
+	"go-mcs/utils_tool"
 )
 
 func main() {
@@ -15,4 +16,5 @@ func main() {
 	cid := "bafykbzacedesi2mu3fgfrxyh5jkgyiqcmgq2ekz4lblwd7mr5jmu2yyikmznu"
 	paymentInfo := helper.GetPaymentInfo(cid)
 
+	utils_tool.PrintMap(paymentInfo)
 }
