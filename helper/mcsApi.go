@@ -1,52 +1,101 @@
 package helper
 
 import (
+	"encoding/json"
 	"fmt"
+	"go-mcs/structs"
 	"go-mcs/utils_tool"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-func GetParams() map[string]interface{} {
+func GetParams() structs.Params {
 	url := MCS_API + "/common/system/params"
-	content, err := utils_tool.HttpGet(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Get params error: ", err)
-		return nil
+		return structs.Params{}
 	}
-	return content
+	responseData, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Fatal(err)
+		return structs.Params{}
+	}
+
+	var responseObject structs.Params
+
+	err = json.Unmarshal(responseData, &responseObject)
+
+	return responseObject
 }
 
-func GetFileStatus(cid string) map[string]interface{} {
+func GetFileStatus(cid string) structs.FileStatus {
 	url := fmt.Sprintf("%s/storage/deal/log/%s", MCS_API, cid)
-	content, err := utils_tool.HttpGet(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Get file status error: ", err)
-		return nil
+		return structs.FileStatus{}
 	}
-	return content
+
+	responseData, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Fatal(err)
+		return structs.FileStatus{}
+	}
+
+	var responseObject structs.FileStatus
+
+	err = json.Unmarshal(responseData, &responseObject)
+	if err != nil {
+		log.Fatal(err)
+		return structs.FileStatus{}
+	}
+	return responseObject
 }
 
-func GetDealDetail(cid string, dealId int64) map[string]interface{} {
+func GetDealDetail(cid string, dealId int64) structs.DealDetail {
 	url := fmt.Sprintf("%s/storage/deal/detail/%d?payload_cid=%s", MCS_API, dealId, cid)
 	fmt.Println(url)
-	content, err := utils_tool.HttpGet(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Get deal detail error: ", err)
-		return nil
+		return structs.DealDetail{}
 	}
-	return content
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+		return structs.DealDetail{}
+	}
+
+	var responseObj structs.DealDetail
+	json.Unmarshal(responseData, &responseObj)
+	return responseObj
 }
 
-func GetPaymentInfo(cid string) map[string]interface{} {
+func GetPaymentInfo(cid string) structs.PaymentInfo {
 	url := fmt.Sprintf("%s/billing/deal/lockpayment/info?payload_cid=%s", MCS_API, cid)
-	content, err := utils_tool.HttpGet(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Get payment info error: ", err)
-		return nil
+		return structs.PaymentInfo{}
 	}
 
-	return content
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+		return structs.PaymentInfo{}
+	}
+	defer resp.Body.Close()
+	var responseObj structs.PaymentInfo
+	err = json.Unmarshal(responseData, &responseObj)
+	if err != nil {
+		log.Fatal(err)
+		return structs.PaymentInfo{}
+	}
+	return responseObj
 }
 
 func PostMintInfo(mintInfo map[string]string) map[string]interface{} {

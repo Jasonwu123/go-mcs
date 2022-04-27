@@ -1,15 +1,29 @@
 package helper
 
 import (
+	"encoding/json"
 	"fmt"
 	"go-mcs/utils_tool"
 	"io"
+	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
 	"path/filepath"
 )
+
+type data struct {
+	PayloadCid string `json:"payload_cid"`
+	IpfsUrl    string `json:"ipfs_url"`
+	NeedPay    int    `json:"need_pay"`
+}
+
+type UploadResponse struct {
+	Status string `json:"status"`
+	Code   string `json:"code"`
+	Data data `json:"data"`
+}
 
 // Build up http request body by params
 func createReqBody(filePath string) (string, io.Reader, error) {
@@ -83,7 +97,19 @@ func UploadFile(filePath string) error {
 	defer resp.Body.Close()
 	log.Printf("upload %s ok\n", filePath)
 
-	utils_tool.ReadResp(resp.Body)
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var responseObject UploadResponse
+	json.Unmarshal(responseData, &responseObject)
+
+	fmt.Println(responseObject.Code)
+	fmt.Println(responseObject.Status)
+	fmt.Println(responseObject.Data)
+	fmt.Println(responseObject.Data.PayloadCid)
+	fmt.Println(responseObject.Data.IpfsUrl)
 
 	return nil
 }
