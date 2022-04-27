@@ -1,0 +1,160 @@
+{
+     "status": "success",
+     "code": "200",
+     "data": {
+          "payload_cid": "bafykbzacedesi2mu3fgfrxyh5jkgyiqcmgq2ekz4lblwd7mr5jmu2yyikmznu",
+          "ipfs_url": "https://calibration-ipfs.filswan.com/ipfs/QmYhR7R9Wj17rfizPdTXqJnmvNnWYg1kSr7bkjBYk2dZWW",
+          "need_pay": 0
+     }
+}
+
+
+{
+     "status": "success",
+     "code": "200",
+     "data": {
+          "LOCK_TIME": "6",
+          "MINT_CONTRACT": "0x1A1e5AC88C493e0608C84c60b7bb5f04D9cF50B3",
+          "PAY_GAS_LIMIT": "9999999",
+          "PAY_WITH_MULTIPLY_FACTOR": "1.5",
+          "RECIPIENT": "0xABeAAb124e6b52afFF504DB71bbF08D0A768D053",
+          "SWAN_PAYMENT_CONTRACT_ADDRESS": "0x7ab09f9Ab4D39cfBE0551dfb6AdAc63C89bB955b",
+          "USDC_ADDRESS": "0xe11A86849d99F524cAC3E7A0Ec1241828e332C62"
+     }
+}
+
+content: map[string]interface {}{"code":"200", "data":map[string]interface {}{"locked_fee":"75000000000000000", "payload_cid":"bafykbzacebaxluhozonmakj7f2qidkufg7mrdhsinw72hinqp7zk5kw2gax5c", "tx_hash":"0x153ac0c068bb650463143fb0cdcae3ba62a152ed7d805f4cad578672fe4eadf7"}, "status":"success"}
+
+
+0xf4d98717000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000b1a2bc2ec50000000000000000000000000000000000000000000000000000010a741a46278000000000000000000000000000000000000000000000000000000000000007e900000000000000000000000000abeaab124e6b52afff504db71bbf08d0a768d05300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000003e626166796b627a6163656261786c75686f7a6f6e6d616b6a3766327169646b756667376d72646873696e77373268696e7170377a6b356b773267617835630000
+0xf4d98717000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000b1a2bc2ec5000000000000000000000000000000000000000000000000000014d1120d7b160000000000000000000000000000000000000000000000000000000000000007e900000000000000000000000000abeaab124e6b52afff504db71bbf08d0a768d05300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000003e626166796b627a61636564657369326d753366676672787968356a6b67796971636d677132656b7a346c626c7764376d72356a6d75327979696b6d7a6e750000
+
+0x6aff8103010106706172616d7301ff8200010701024964010c00010a4d696e5061796d656e7401ff84000106416d6f756e7401ff840001084c6f636b54696d650106000109526563697069656e7401ff8600010453697a650104000109436f70794c696d697401040000000aff83050102ff8800000017ff85010101074164647265737301ff8600010601280000ff8eff82013e626166796b627a61636564657369326d753366676672787968356a6b67796971636d677132656b7a346c626c7764376d72356a6d75327979696b6d7a6e750110020e71c916157a21a0a5abee000000000110020e71c916157a21a0a5abee0000000001fd07e9000114ffabffeaffab124e6b52ffafffff504dffb71bffbf08ffd0ffa768ffd053020200
+
+
+type params struct {
+		Id         string
+		MinPayment *big.Int
+		Amount     *big.Int
+		LockTime   uint64
+		Recipient  common.Address
+		Size       int
+		CopyLimit  int
+	}
+
+	param := params{
+		Id:         cid,
+		MinPayment: amount,
+		Amount:     amount.Mul(amount, factor),
+		LockTime:   86400 * 6,
+		Recipient:  recipientAddress,
+		Size:       0,
+		CopyLimit:  1,
+	}
+
+	nonce, err := client.PendingNonceAt(context.Background(), payer)
+	utils_tool.ExitIfErr(err)
+
+	value := big.NewInt(0)
+
+	gasLimit := uint64(9999999)
+
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	utils_tool.ExitIfErr(err)
+
+	var b bytes.Buffer
+	encoder := gob.NewEncoder(&b)
+	err = encoder.Encode(param)
+	utils_tool.ExitIfErr(err)
+
+	tx := types.NewTransaction(nonce, swanpaymentAddress, value, gasLimit, gasPrice, b.Bytes())
+
+	chainID, err := client.NetworkID(context.Background())
+	utils_tool.ExitIfErr(err)
+	fmt.Println("chainID: ", chainID)
+
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
+	utils_tool.ExitIfErr(err)
+
+	err = client.SendTransaction(context.Background(), signedTx)
+	utils_tool.ExitIfErr(err)
+
+	fmt.Printf("tx sent: %s\n", signedTx.Hash().Hex())
+
+
+
+	// mumbai rpc
+	rpcUrl := "https://polygon-mumbai.g.alchemy.com/v2/SxI1sWpD8WGsHMcnX3gJajautgx4-vjc"
+	client, err := ethclient.Dial(rpcUrl)
+	utils_tool.ExitIfErr(err)
+
+	privateKey, err := crypto.HexToECDSA("")
+	utils_tool.ExitIfErr(err)
+
+	publicKey := privateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+
+	if !ok {
+		panic("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	}
+
+	publicKeyBytes := crypto.FromECDSAPub(publicKeyECDSA)
+	payer := utils_tool.PublicKeyBytesToAddress(publicKeyBytes)
+
+	cid := "bafykbzacedesi2mu3fgfrxyh5jkgyiqcmgq2ekz4lblwd7mr5jmu2yyikmznu"
+	usdcAddress := common.HexToAddress("0xe11A86849d99F524cAC3E7A0Ec1241828e332C62")
+	recipientAddress := common.HexToAddress("0xABeAAb124e6b52afFF504DB71bbF08D0A768D053")
+	swanpaymentAddress := common.HexToAddress("0x7ab09f9Ab4D39cfBE0551dfb6AdAc63C89bB955b")
+
+	amount := utils_tool.ToWei(0.05, 18)
+	factor := utils_tool.ToWei(1.5, 18)
+
+	//nonce, err := client.PendingNonceAt(context.Background(), payer)
+	utils_tool.ExitIfErr(err)
+
+	value := big.NewInt(0)
+
+	//gasLimit := uint64(9999999)
+	//
+	//gasPrice, err := client.SuggestGasPrice(context.Background())
+	//utils_tool.ExitIfErr(err)
+
+	chainID, err := client.NetworkID(context.Background())
+	utils_tool.ExitIfErr(err)
+	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+	utils_tool.ExitIfErr(err)
+
+	opts := &bind.TransactOpts{
+		From:     payer,
+		Nonce:    auth.Nonce,
+		Signer:   auth.Signer,
+		Value:    value,
+		GasPrice: auth.GasPrice,
+		GasLimit: auth.GasLimit,
+		Context:  auth.Context,
+		NoSend:   false,
+	}
+
+	usdcInstance, err := erc20.NewErc20(usdcAddress, client)
+	approveTx, err := usdcInstance.Approve(opts, swanpaymentAddress, amount)
+	utils_tool.ExitIfErr(err)
+
+	fmt.Println("approveTx: ", approveTx.Hash().Hex())
+
+	paymentInstance, err := swanpayment.NewSwanpayment(swanpaymentAddress, client)
+	utils_tool.ExitIfErr(err)
+
+	param := swanpayment.IPaymentMinimallockPaymentParam{
+		Id:         cid,
+		MinPayment: amount,
+		Amount:     amount.Mul(amount, factor),
+		LockTime:   big.NewInt(int64(86400)).Mul(big.NewInt(int64(86400)), big.NewInt(int64(6))),
+		Recipient:  recipientAddress,
+		Size:       big.NewInt(int64(0)),
+		CopyLimit:  uint8(1),
+	}
+
+	paymentTx, err := paymentInstance.LockTokenPayment(opts, param)
+	utils_tool.ExitIfErr(err)
+
+	fmt.Println("paymentTx: ", paymentTx.Hash().Hex())

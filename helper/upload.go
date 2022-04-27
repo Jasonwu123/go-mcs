@@ -82,12 +82,7 @@ func UploadFile(filePath string) error {
 
 	defer resp.Body.Close()
 	log.Printf("upload %s ok\n", filePath)
-	//content, err := ioutil.ReadAll(resp.Body)
-	//if err != nil {
-	//	fmt.Println("resp read body error: ", err)
-	//	return err
-	//}
-	//log.Printf("upload file result: %s\n", content)
+
 	utils_tool.ReadResp(resp.Body)
 
 	return nil
