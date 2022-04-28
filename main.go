@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-mcs/helper"
+	"go-mcs/structs"
 )
 
 func main() {
@@ -38,15 +39,14 @@ func main() {
 	//	fmt.Println(deallist.Data[i])
 	//}
 
-	//fileparams := structs.FileParams{
-	//	Delay:    1000,
-	//	Duration: 180,
-	//	FileType: "0",
-	//}
-	//
-	filepath := "/home/jason/Documents/方方日记.epub"
+	fileparams := structs.FileParams{
+		Duration: "180",
+		FileType: "0",
+	}
 
-	resp := helper.UploadFileTest(filepath)
+	filepath := "/Users/jasonwu/Documents/中国史纲.xmind"
+
+	resp := helper.UploadFile("", filepath, fileparams)
 	fmt.Println(resp)
 	fmt.Println("")
 	fmt.Println(resp.Code)

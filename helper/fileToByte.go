@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"go-mcs/structs"
@@ -18,8 +19,8 @@ import (
 func createReqBodyTest(filePath string) (string, io.Reader, error) {
 	fmt.Println("I am in create request body")
 	var err error
-	pr, pw := io.Pipe()
-	bw := multipart.NewWriter(pw)
+	buf := new(bytes.Buffer)
+	bw := multipart.NewWriter(buf)
 	f, err := utils_tool.OpenFile(filePath)
 	fmt.Println("f: ", f)
 	if err != nil {
@@ -41,6 +42,48 @@ func createReqBodyTest(filePath string) (string, io.Reader, error) {
 	p3w, _ := bw.CreateFormField("file_type")
 	p3w.Write([]byte(string(FILETYPE)))
 	fmt.Println("3")
+	/*
+			// part1 wallet_address
+		if address == "" {
+			address = WALLET_ADDRESS
+			p1w, _ := bw.CreateFormField("wallet_address")
+			p1w.Write([]byte(address))
+			fmt.Println("address: ", address)
+		} else {
+			p1w, _ := bw.CreateFormField("wallet_address")
+			p1w.Write([]byte(address))
+			fmt.Println("address: ", address)
+		}
+
+		// part2 duration
+		if fileparams.Duration == 0 {
+			p2w, _ := bw.CreateFormField("duration")
+			i, err := p2w.Write([]byte(string(DURATION)))
+			if err != nil {
+				log.Println(err)
+			}
+			fmt.Println("duration: ", i)
+		} else {
+			p2w, _ := bw.CreateFormField("duration")
+			p2w.Write([]byte(string(fileparams.Duration)))
+			fmt.Println("duration: ", fileparams.Duration)
+		}
+
+		// part3 file type
+		p3w, _ := bw.CreateFormField("file_type")
+		p3w.Write([]byte(fileparams.FileType))
+		fmt.Println("file_type: ", fileparams.FileType)
+
+		// part4 delay
+		if fileparams.Delay == 0 {
+			p4w, _ := bw.CreateFormField("delay")
+			p4w.Write([]byte(string(DELAY)))
+
+		} else {
+			p4w, _ := bw.CreateFormField("delay")
+			p4w.Write([]byte(string(fileparams.Delay)))
+		}
+	*/
 
 	// part4 file
 	_, fileName := filepath.Split(filePath)
@@ -52,9 +95,8 @@ func createReqBodyTest(filePath string) (string, io.Reader, error) {
 	cnt, _ := io.Copy(fw1, f)
 	log.Printf("copy %d bytes from file %s in total\n", cnt, fileName)
 	defer bw.Close()
-	defer pw.Close()
 	fmt.Println("5")
-	return bw.FormDataContentType(), pr, nil
+	return bw.FormDataContentType(), buf, nil
 }
 
 // UploadFile upload file to mcs swam server

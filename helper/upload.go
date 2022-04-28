@@ -15,16 +15,14 @@ import (
 )
 
 // Create upload file http request body by params
-func createReqBody(address, filePath string, fileparams structs.FileParams) (string, io.Reader, error) {
+func createReqBody(address, filePath string, fileParams structs.FileParams) (string, io.Reader, error) {
 	var err error
 	pr, pw := io.Pipe()
 	bw := multipart.NewWriter(pw)
 	f, err := utils_tool.OpenFile(filePath)
-	fmt.Println("f: ", f)
 	if err != nil {
 		return "", nil, err
 	}
-	fmt.Println("fileparams: ", fileparams)
 
 	go func() {
 		defer f.Close()
@@ -34,37 +32,38 @@ func createReqBody(address, filePath string, fileparams structs.FileParams) (str
 			address = WALLET_ADDRESS
 			p1w, _ := bw.CreateFormField("wallet_address")
 			p1w.Write([]byte(address))
-			fmt.Println("address: ", address)
 		} else {
 			p1w, _ := bw.CreateFormField("wallet_address")
 			p1w.Write([]byte(address))
-			fmt.Println("address: ", address)
 		}
 
 		// part2 duration
-		if fileparams.Duration == 0 {
+		if fileParams.Duration == "" {
 			p2w, _ := bw.CreateFormField("duration")
-			p2w.Write([]byte(string(DURATION)))
-			fmt.Println("duration: ", fileparams.Duration)
+			p2w.Write([]byte(DURATION))
 		} else {
 			p2w, _ := bw.CreateFormField("duration")
-			p2w.Write([]byte(string(fileparams.Duration)))
-			fmt.Println("duration: ", fileparams.Duration)
+			p2w.Write([]byte(fileParams.Duration))
 		}
 
 		// part3 file type
-		p3w, _ := bw.CreateFormField("file_type")
-		p3w.Write([]byte(fileparams.FileType))
-		fmt.Println("file_type: ", fileparams.FileType)
+		if fileParams.FileType == "" {
+			p3w, _ := bw.CreateFormField("file_type")
+			p3w.Write([]byte(FILETYPE))
+		} else {
+			p3w, _ := bw.CreateFormField("file_type")
+			p3w.Write([]byte(fileParams.FileType))
+		}
+
 
 		// part4 delay
-		if fileparams.Delay == 0 {
+		if fileParams.Delay == "" {
 			p4w, _ := bw.CreateFormField("delay")
-			p4w.Write([]byte(string(DELAY)))
+			p4w.Write([]byte(DELAY))
 
 		} else {
 			p4w, _ := bw.CreateFormField("delay")
-			p4w.Write([]byte(string(fileparams.Delay)))
+			p4w.Write([]byte(fileParams.Delay))
 		}
 
 		// part5 file
@@ -76,19 +75,16 @@ func createReqBody(address, filePath string, fileparams structs.FileParams) (str
 		fw1, _ := bw.CreatePart(h)
 		cnt, _ := io.Copy(fw1, f)
 		log.Printf("copy %d bytes from file %s in total\n", cnt, fileName)
-		log.Println("")
 		bw.Close()
 		pw.Close()
 	}()
-
-	fmt.Println("form data: ", bw.FormDataContentType())
 	return bw.FormDataContentType(), pr, nil
 }
 
 // UploadFile upload file to mcs swam server
-func UploadFile(address, filePath string, fileparams structs.FileParams) structs.UploadFileResponse {
+func UploadFile(address, filePath string, fileParams structs.FileParams) structs.UploadFileResponse {
 	// create body
-	contType, reader, err := createReqBody(address, filePath, fileparams)
+	contType, reader, err := createReqBody(address, filePath, fileParams)
 	if err != nil {
 		log.Println(err)
 		return structs.UploadFileResponse{}
@@ -112,12 +108,12 @@ func UploadFile(address, filePath string, fileparams structs.FileParams) structs
 	log.Printf("upload %s...\n", filePath)
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println("文件上传失败")
-		log.Println(err)
+		log.Println("Upload file failed: ", err)
 		return structs.UploadFileResponse{}
 	}
 
 	log.Printf("upload %s ok\n", filePath)
+	log.Println("")
 
 	responseData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
