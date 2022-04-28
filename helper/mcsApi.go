@@ -10,6 +10,7 @@ import (
 	"net/http"
 )
 
+// GetParams get system config
 func GetParams() structs.Params {
 	url := MCS_API + "/common/system/params"
 	resp, err := http.Get(url)
@@ -31,6 +32,7 @@ func GetParams() structs.Params {
 	return responseObject
 }
 
+// GetFileStatus get deal logs
 func GetFileStatus(cid string) structs.FileStatus {
 	url := fmt.Sprintf("%s/storage/deal/log/%s", MCS_API, cid)
 	resp, err := http.Get(url)
@@ -56,9 +58,9 @@ func GetFileStatus(cid string) structs.FileStatus {
 	return responseObject
 }
 
+// GetDealDetail get deal details
 func GetDealDetail(cid string, dealId int64) structs.DealDetail {
 	url := fmt.Sprintf("%s/storage/deal/detail/%d?payload_cid=%s", MCS_API, dealId, cid)
-	fmt.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Get deal detail error: ", err)
@@ -75,6 +77,7 @@ func GetDealDetail(cid string, dealId int64) structs.DealDetail {
 	return responseObj
 }
 
+// GetPaymentInfo get payment info
 func GetPaymentInfo(cid string) structs.PaymentInfo {
 	url := fmt.Sprintf("%s/billing/deal/lockpayment/info?payload_cid=%s", MCS_API, cid)
 	resp, err := http.Get(url)
@@ -98,6 +101,7 @@ func GetPaymentInfo(cid string) structs.PaymentInfo {
 	return responseObj
 }
 
+// PostMintInfo record mint info
 func PostMintInfo(mintInfo map[string]string) map[string]interface{} {
 	url := MCS_API + "/storage/mint/info"
 	request, err := utils_tool.MultipartReq(url, mintInfo)
@@ -115,7 +119,8 @@ func PostMintInfo(mintInfo map[string]string) map[string]interface{} {
 	return utils_tool.ReadResp(resp.Body)
 }
 
-func GetDealList(cid, fileName, pageNumber, pageSize string) map[string]interface{} {
+// GetDealList get uploaded file list
+func GetDealList(cid, fileName, pageNumber, pageSize string) structs.DealList {
 	if pageNumber == "" {
 		pageNumber = "1"
 	}
@@ -124,14 +129,33 @@ func GetDealList(cid, fileName, pageNumber, pageSize string) map[string]interfac
 	}
 	if fileName != "" {
 		fileName = fileName
+	} else {
+		fileName = ""
 	}
+
 	url := fmt.Sprintf("%s/storage/tasks/deals?page_size=%s&page_number=%s&file_name=%s&source_id=4&wallet_address=%s&payload_cid=%s",
 		MCS_API, pageSize, pageNumber, fileName, WALLET_ADDRESS, cid,
 	)
-	content, err := utils_tool.HttpGet(url)
+
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Get deal list error: ", err)
-		return nil
+		return structs.DealList{}
 	}
-	return content
+
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		return structs.DealList{}
+	}
+	defer resp.Body.Close()
+
+	var responseObj structs.DealList
+	err = json.Unmarshal(responseData, &responseObj)
+	if err != nil {
+		log.Println(err)
+		return structs.DealList{}
+	}
+
+	return responseObj
 }

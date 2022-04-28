@@ -10,7 +10,7 @@ func main() {
 	//client, err := ethclient.Dial(rpcUrl)
 	//utils_tool.ExitIfErr(err)
 	//payer := common.HexToAddress(helper.WALLET_ADDRESS)
-	cid := "bafykbzacedesi2mu3fgfrxyh5jkgyiqcmgq2ekz4lblwd7mr5jmu2yyikmznu"
+	//cid := "bafykbzacedesi2mu3fgfrxyh5jkgyiqcmgq2ekz4lblwd7mr5jmu2yyikmznu"
 	//amount := big.NewInt(int64(math.Floor(0.05)))
 	//helper.LockToken(client, payer, cid, amount)
 	//cid := "bafykbzacedesi2mu3fgfrxyh5jkgyiqcmgq2ekz4lblwd7mr5jmu2yyikmznu"
@@ -27,6 +27,34 @@ func main() {
 	//fmt.Println(paymentinfo.Data.PayloadCid)
 	//fmt.Println(paymentinfo.Data.TxHash)
 
-	dealdetail := helper.GetDealDetail(cid, 1)
-	fmt.Println(dealdetail.Data.Deal.FileName)
+	//dealdetail := helper.GetDealDetail(cid, 1)
+	//fmt.Println(dealdetail.Data.Deal.FileName)
+
+	//deallist := helper.GetDealList(cid, "", "", "")
+	//fmt.Println("code: ", deallist.Code)
+	//fmt.Println("status: ", deallist.Status)
+	//
+	//for i := range deallist.Data {
+	//	fmt.Println(deallist.Data[i])
+	//}
+
+	//fileparams := structs.FileParams{
+	//	Delay:    1000,
+	//	Duration: 180,
+	//	FileType: "0",
+	//}
+	//
+	filepath := "/home/jason/Documents/方方日记.epub"
+
+	resp := helper.UploadFileTest(filepath)
+	fmt.Println(resp)
+	fmt.Println("")
+	fmt.Println(resp.Code)
+	fmt.Println("")
+	fmt.Println(resp.Status)
+	fmt.Println("")
+	fmt.Println(resp.Data.PayloadCid)
+	fmt.Println("")
+	fmt.Println(resp.Data.IpfsUrl)
+
 }
