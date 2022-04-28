@@ -172,3 +172,133 @@ type params struct {
 
     bafk2bzacebd5ifzdtdomoqvzjk3yrotbgtkuxspkgmn2h5bwr6ob5t5rn5jws
     https://calibration-ipfs.filswan.com/ipfs/QmV6A4tdr2xHcRzWqH9kS5X8LVNUyEpDWFsA5e9hQihHtj
+
+
+
+
+Okewole Oluwatobi
+Learning to become a backend engineer.
+Making HTTP requests in Go
+September 14, 2020  8 min read
+
+Making HTTP requests in Go
+HTTP requests are a very fundamental part of the web as a whole. They are used to access resources hosted on a server (which could be remote).
+
+HTTP is an acronym for hypertext transfer protocol, a communication protocol that ensures the transfer of data between a client and a server. A perfect instance of an HTTP client-server interaction is when you open your browser and type in a URL. Your browser acts as a client and fetches resources from a server which it then displays.
+
+In web development, cases where we need to fetch resources, are very common. You might be making a weather application and need to fetch the weather data from an API. In such a case, using your browser as a client would no longer be possible from within your application. So you have to set up an HTTP client within your application to handle the making of these requests.
+
+Most programming languages have various structures in place for setting up HTTP clients for making requests. In the coming sections, we will take a hands-on approach in exploring how you can make HTTP requests in Golang or Go, as I will refer to the language for the rest of the article.
+
+Prerequisites
+To follow this article you will need:
+
+Go (version 1.14 or higher)
+A text editor of your choice
+Basic knowledge of Go
+Making HTTP requests in Go
+GET request
+The first request we will be making is a GET request. The HTTP GET method is used for requesting data from a specified source or server. The GET method is mostly used when data needs to be fetched.
+
+For the sake of clarity, it is important to note that the HTTP methods, as seen in this article, are always capitalized.
+
+For our example, we will be fetching some example JSON data from https://jsonplaceholder.typicode.com/posts using the GET method.
+
+The first step in making an HTTP request with Go is to import the net/http package from the standard library. This package provides us with all the utilities we need to make HTTP requests with ease. We can import the net/http package and other packages we will need by adding the following lines of code to a main.go file that we create:
+
+import (
+   "io/ioutil"
+   "log"
+   "net/http"
+)
+The net/http package we imported has a Get function used for making GET requests. The Get function takes in a URL and returns a response of type pointer to a struct and an error. When the error is nil, the response returned will contain a response body and vice versa:
+
+resp, err := http.Get("https://jsonplaceholder.typicode.com/posts/1")
+if err != nil {
+   log.Fatalln(err)
+}
+To make the request, we invoke the Get function, passing in a URL string (https://jsonplaceholder.typicode.com/posts) as seen above. The values returned from the invocation of this function are stored in two variables typically called resp and err. Although the variable resp contains our response, if we print it out we would get a load of incoherent data which includes the header and properties of the request made. To get the response we are interested in, we have to access the Body property on the response struct and read it before finally printing it out to the terminal. We can read the response body using the ioutil.ReadMe function.
+
+Similar to the Get function, the ioutil.ReadMe function returns a body and an error. It is important to note that the response Body should be closed after we are done reading from it to prevent memory leaks.
+
+The defer keyword which executes resp.Body.Close() at the end of the function is used to close the response body. We can then go ahead and print out the value of the response to the terminal. As good programmers it is important to handle possible errors, so we use an if statement to check for any errors and log the error if it exists:
+
+package main
+
+import (
+   "io/ioutil"
+   "log"
+   "net/http"
+)
+
+func main() {
+   resp, err := http.Get("https://jsonplaceholder.typicode.com/posts")
+   if err != nil {
+      log.Fatalln(err)
+   }
+//We Read the response body on the line below.
+   body, err := ioutil.ReadAll(resp.Body)
+   if err != nil {
+      log.Fatalln(err)
+   }
+//Convert the body to type string
+   sb := string(body)
+   log.Printf(sb)
+}
+At this point, we are all set and can execute the file containing our code. If everything went well you will notice some JSON data similar to the image below gets printed to the terminal:
+
+JSON data printed in terminal including user ID, id, title, and body
+Congratulations, you have just made your first HTTP request with Go. Now that we have seen how we can fetch resources from a server using the HTTP GET method, we will look at how to post resources to a server next.
+
+POST request
+The HTTP POST method is used to make requests that usually contain a body. It Is used to send data to a server, the data sent is usually used for creating or updating resources.
+
+A clear instance where a POST request is used is when a user tries to create a social media account, the user is required to provide their data (name, email, and password). This data is then parsed and sent as a POST request to a server which then creates and saves the user. Just like for the GET method seen above, Go’s net/http package also provides functionality for making POST requests through the Post function. The Post function takes three parameters.
+
+The URL address of the server
+The content type of the body as a string
+The request body that is to be sent using the POST method of type io.Reader
+The Post function returns a response and an error. For us to invoke the Post function we have to convert our request body to the accepted type. For this example, we will make a post request to https://postman-echo.com/post and pass in JSON data containing a name and an email. To get started we convert our JSON data to a type that implements the Io.Reader interface the Post function expects, this is a two-way step:
+
+The first step is to encode our JSON data so it can return data in byte format, to do this we use the Marshall function Go’s Json package provides
+Next, we convert the encoded JSON data to a type implemented by the io.Reader interface, we simply use the NewBuffer function for this, passing in the encoded JSON data as an argument. The NewBuffer function returns a value of type buffer which we can then pass unto the Post function
+postBody, _ := json.Marshal(map[string]string{
+   "name":  "Toby",
+   "email": "Toby@example.com",
+})
+responseBody := bytes.NewBuffer(postBody)
+Now that we have all the arguments the Post function requires, we can go ahead and invoke it, passing in https://postman-echo.com/post as the URL string, application/JSON as the content type, and the request body returned by the NewBuffer function as the body. The values returned by the Post function is then assigned to resp and err representing the response and error, respectively. After handling the error, we read and print in the response body as we did for the Get function in the previous section. At this point, your file should look like this:
+
+import (
+   "bytes"
+   "encoding/json"
+   "io/ioutil"
+   "log"
+   "net/http"
+)
+
+func main() {
+//Encode the data
+   postBody, _ := json.Marshal(map[string]string{
+      "name":  "Toby",
+      "email": "Toby@example.com",
+   })
+   responseBody := bytes.NewBuffer(postBody)
+//Leverage Go's HTTP Post function to make request
+   resp, err := http.Post("https://postman-echo.com/post", "application/json", responseBody)
+//Handle Error
+   if err != nil {
+      log.Fatalf("An Error Occured %v", err)
+   }
+   defer resp.Body.Close()
+//Read the response body
+   body, err := ioutil.ReadAll(resp.Body)
+   if err != nil {
+      log.Fatalln(err)
+   }
+   sb := string(body)
+   log.Printf(sb)
+}
+
+
+tx_hash: 0xb5755f046bf8faaa4b7edd4fc2ff2bc057c0699df7e2881ba4dc5d48fc6a519d

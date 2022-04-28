@@ -143,7 +143,7 @@ func bindMinter(address common.Address, caller bind.ContractCaller, transactor b
 
 // Call invokes the (constant) contract method with params as input values and
 // sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
+// returns, a slice of interfaces for anonymous returns and a structs for named
 // returns.
 func (_Minter *MinterRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _Minter.Contract.MinterCaller.contract.Call(opts, result, method, params...)
@@ -162,7 +162,7 @@ func (_Minter *MinterRaw) Transact(opts *bind.TransactOpts, method string, param
 
 // Call invokes the (constant) contract method with params as input values and
 // sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
+// returns, a slice of interfaces for anonymous returns and a structs for named
 // returns.
 func (_Minter *MinterCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _Minter.Contract.contract.Call(opts, result, method, params...)

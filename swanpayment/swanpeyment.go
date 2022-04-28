@@ -28,7 +28,7 @@ var (
 	_ = event.NewSubscription
 )
 
-// IPaymentMinimallockPaymentParam is an auto generated low-level Go binding around an user-defined struct.
+// IPaymentMinimallockPaymentParam is an auto generated low-level Go binding around an user-defined structs.
 type IPaymentMinimallockPaymentParam struct {
 	Id         string
 	MinPayment *big.Int
@@ -154,7 +154,7 @@ func bindSwanpayment(address common.Address, caller bind.ContractCaller, transac
 
 // Call invokes the (constant) contract method with params as input values and
 // sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
+// returns, a slice of interfaces for anonymous returns and a structs for named
 // returns.
 func (_Swanpayment *SwanpaymentRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _Swanpayment.Contract.SwanpaymentCaller.contract.Call(opts, result, method, params...)
@@ -173,7 +173,7 @@ func (_Swanpayment *SwanpaymentRaw) Transact(opts *bind.TransactOpts, method str
 
 // Call invokes the (constant) contract method with params as input values and
 // sets the output to result. The result type might be a single field for simple
-// returns, a slice of interfaces for anonymous returns and a struct for named
+// returns, a slice of interfaces for anonymous returns and a structs for named
 // returns.
 func (_Swanpayment *SwanpaymentCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return _Swanpayment.Contract.contract.Call(opts, result, method, params...)
