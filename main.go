@@ -1,7 +1,10 @@
 package main
 
 import (
-	"go-mcs/helper"
+	"encoding/json"
+	"fmt"
+	"go-mcs/structs"
+	"strings"
 )
 
 func main() {
@@ -57,18 +60,26 @@ func main() {
 	//fmt.Println("")
 	//fmt.Println(resp.Data.IpfsUrl)
 
-
-
-	filePath := `
-    {
-		Name:        "nft",
+	filePath := structs.NFT{
+		Name:        "wo门垃圾水电费",
 		Description: "this is my first nft",
 		Image:       "https://calibration-ipfs.filswan.com/ipfs/QmYhR7R9Wj17rfizPdTXqJnmvNnWYg1kSr7bkjBYk2dZWW",
 		TxHash:      "0xb5755f046bf8faaa4b7edd4fc2ff2bc057c0699df7e2881ba4dc5d48fc6a519d",
-	}`
+	}
 
-	helper.UploadFileTest(filePath)
+	filePathByte, err := json.Marshal(filePath)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-
+	filePathStr := string(filePathByte)
+	fmt.Println(filePathStr)
+	i := strings.Split(filePathStr, ",")
+	j := i[0]
+	k := strings.Split(j, ":")
+	l := k[1]
+	m := strings.Split(l, "\"")
+	fmt.Println(m[1])
+	//helper.UploadFileTest(string(filePathByte))
 
 }
